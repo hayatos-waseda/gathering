@@ -1,0 +1,18 @@
+max_step: 10000
+
+seed: 42
+
+agents:
+  player1:
+    type: AgentA
+    start_pos: [0, 0]
+  player2:
+    type: AgentB
+    start_pos: [4, 4]
+
+render:
+  mode: gif
+  output: results.gif
+
+environment:
+  map_path: config/map.txt
