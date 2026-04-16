@@ -10,3 +10,10 @@ uv sync
 python3 main.py
 ```
 で実行されるはず
+
+
+uv使ってなくても
+numpy
+matplotlib
+pyyaml
+があれば動く
