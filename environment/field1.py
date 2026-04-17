@@ -6,6 +6,7 @@ from environment.map_loader import MapLoader
 class Field1:
     def __init__(self, rnd, grid, config):
 
+        self.grid = grid
         self.field = MapLoader.build_field_from_map(grid)
         self.grid_size = len(grid)
 
