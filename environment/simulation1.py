@@ -1,11 +1,10 @@
 # simulation/simulation1.py
 
 from environment.map_loader import MapLoader
+from environment.field1 import Field1
 from agent.agent_a import AgentA
 from agent.agent_b import AgentB
-from environment.field1 import Field1
 from renderer.gif_maker import GIFMaker
-
 
 import yaml
 import random
@@ -16,104 +15,139 @@ class Simulation1:
     @staticmethod
     def start(config_path="config/simulation.yaml"):
 
+        # ===== config読み込み =====
         with open(config_path, "r") as f:
             config = yaml.safe_load(f)
 
         max_step = config["max_step"]
         seed_num = config["seed"]
+
         rnd = random.Random(seed_num)
 
+        # ===== 環境 =====
         grid = MapLoader.load_map(config["environment"]["map_path"])
-
         f1 = Field1(rnd, grid)
-        pos1 = config["agents"]["player1"]["start_pos"]
-        pos2 = config["agents"]["player2"]["start_pos"]
 
-        player1 = AgentA(rnd, f1, pos1)
-        player2 = AgentB(rnd, f1, pos2)
+        # ===== Agentクラス対応表 =====
+        AGENT_MAP = {
+            "AgentA": AgentA,
+            "AgentB": AgentB,
+        }
 
+        # ===== エージェント生成 =====
+        agents = []
+        for conf in config["agents"]:
+            cls = AGENT_MAP[conf["type"]]
 
+            agent = cls(
+                rnd,
+                f1,
+                conf["start_pos"]
+            )
+
+            agents.append({
+                "name": conf["name"],
+                "team": conf["team"],
+                "obj": agent,
+                "score": 0
+            })
+
+        # ===== renderer =====
         render_mode = config["render"]["mode"]
+
         if render_mode == "gif":
             gif = GIFMaker(grid)
 
-        score1 = 0
-        score2 = 0
-
-        # ステップループ
+        # ===== メインループ =====
         for time in range(max_step):
 
-            # イベント発生
+            # --- イベント発生 ---
             f1.happen_event(rnd)
 
-            # 行動決定
-            action1 = 8
-            action2 = 8
+            # ===== 行動決定 =====
+            actions = []
 
-            if player1.can_act(time, rnd):
-                action1 = player1.action(player2.get_pos())
+            for a in agents:
+                agent = a["obj"]
 
-            if player2.can_act(time, rnd):
-                action2 = player2.action(player1.get_pos())
+                if agent.can_act(time, rnd):
 
-            # 移動
-            if action1 < 4:
-                player1.move(action1)
-            if action2 < 4:
-                player2.move(action2)
+                    # 敵の位置リスト
+                    enemy_positions = [
+                        b["obj"].get_pos()
+                        for b in agents
+                        if b["team"] != a["team"]
+                    ]
 
-            # 攻撃
-            hit1 = 0
-            hit2 = 0
+                    action = agent.action(enemy_positions)
 
-            if action1 >= 4:
-                hit1 = player1.attack(action1, player2.get_pos())
+                else:
+                    action = 8  # 何もしない
 
-            if action2 >= 4:
-                hit2 = player2.attack(action2, player1.get_pos())
+                actions.append(action)
 
-            # 破壊処理
-            if hit1 != 0:
-                player2.broken(time)
+            # ===== 移動 =====
+            for i, a in enumerate(agents):
+                if actions[i] < 4:
+                    a["obj"].move(actions[i])
 
-            if hit2 != 0:
-                player1.broken(time)
+            # ===== 攻撃 =====
+            hits = [0] * len(agents)
 
-            pos1 = player1.get_pos()
-            pos2 = player2.get_pos()
+            for i, a in enumerate(agents):
+                if actions[i] >= 4:
+                    for j, b in enumerate(agents):
 
-            # 報酬処理
-            if pos1[0] == pos2[0] and pos1[1] == pos2[1] and pos1[0] != -1:
-                f1.acquire_event(pos1[0], pos1[1])
-            else:
-                if player1.get_status() != "broken":
-                    score1 += f1.acquire_event(pos1[0], pos1[1])
+                        # 敵のみ対象
+                        if a["team"] != b["team"]:
+                            hit = a["obj"].attack(
+                                actions[i],
+                                b["obj"].get_pos()
+                            )
 
-                if player2.get_status() != "broken":
-                    score2 += f1.acquire_event(pos2[0], pos2[1])
+                            if hit:
+                                b["obj"].broken(time)
+                                hits[i] = 1
 
-            # ログ
-            # print(f"action player1: {action1}, player2: {action2}")
-            # print(f"position player1: ({player1.get_pos()[0]},{player1.get_pos()[1]}), "
-            #     f"player2: ({player2.get_pos()[0]},{player2.get_pos()[1]})")
-            # print(f"score player1: {score1}, player2: {score2}")
-            # print()
+            # ===== 位置取得 =====
+            positions = [a["obj"].get_pos() for a in agents]
 
+            # ===== 報酬処理 =====
+            for i, a in enumerate(agents):
+                pos = positions[i]
+
+                # 無効位置
+                if pos[0] == -1:
+                    continue
+
+                # 同マス判定
+                same_cell = sum(1 for p in positions if p == pos) > 1
+
+                if same_cell:
+                    f1.acquire_event(pos[0], pos[1])
+                else:
+                    if a["obj"].get_status() != "broken":
+                        a["score"] += f1.acquire_event(pos[0], pos[1])
+
+            # ===== 描画 =====
             if render_mode == "gif" and time <= 100:
                 gif.update(
                     step=time,
-                    score1=score1,
-                    score2=score2,
+                    scores=[a["score"] for a in agents],
                     event=f1.event,
-                    pos1=pos1,
-                    pos2=pos2,
-                    action1=action1,
-                    action2=action2
+                    positions=positions,
+                    actions=actions,
+                    teams=[a["team"] for a in agents]
                 )
-        
+
+        # ===== 保存 =====
         if render_mode == "gif":
-            gif.save("results.gif")
-        
+            gif.save(config["render"]["output"])
+
+        # ===== 結果出力 =====
+        print("=== RESULT ===")
+        for a in agents:
+            print(f'{a["name"]} (Team {a["team"]}): {a["score"]}')
+
+        # ===== 確率表示 =====
         f1.show_p()
-        
-        

@@ -1,14 +1,26 @@
 max_step: 10000
-
 seed: 42
 
 agents:
-  player1:
+  - name: playerA1
+    team: A
     type: AgentA
     start_pos: [0, 0]
-  player2:
+
+  - name: playerA2
+    team: A
+    type: AgentA
+    start_pos: [0, 1]
+
+  - name: playerB1
+    team: B
     type: AgentB
     start_pos: [4, 4]
+
+  - name: playerB2
+    team: B
+    type: AgentB
+    start_pos: [4, 3]
 
 render:
   mode: gif
