@@ -47,6 +47,18 @@ class AgentB:
 
         return hit
 
+    def respawn(self, rnd, field):
+        while True:
+            x = rnd.randrange(field.grid_size)
+            y = rnd.randrange(field.grid_size)
+
+            # 壁じゃない
+            if field.grid[y][x] == "#":
+                continue
+
+            self.pos = [x, y]
+            break
+
     def can_act(self, time, rnd):
         if self.status != "broken":
             return True
@@ -55,8 +67,7 @@ class AgentB:
             return False
 
         self.status = "active"
-        self.pos[0] = rnd.randint(0, 4)
-        self.pos[1] = rnd.randint(0, 4)
+        self.respawn(rnd, self.field)
         return True
 
     def get_pos(self):
