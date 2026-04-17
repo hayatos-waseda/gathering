@@ -3,7 +3,7 @@
 import random
 from environment.map_loader import MapLoader
 
-class Field1:
+class Field:
     def __init__(self, rnd, grid, config):
 
         self.grid = grid
