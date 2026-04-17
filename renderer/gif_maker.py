@@ -138,7 +138,7 @@ class GIFMaker:
         ani = animation.ArtistAnimation(
             self.fig,
             self.frames,
-            interval=250,
+            interval=400,
             repeat=False
         )
         ani.save(path, writer="pillow")

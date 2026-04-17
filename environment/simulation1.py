@@ -144,10 +144,11 @@ class Simulation1:
         if render_mode == "gif":
             gif.save(config["render"]["output"])
 
+        # ===== 確率表示 =====
+        print("=== Reward Table ===")
+        f1.show_p()
+
         # ===== 結果出力 =====
         print("=== RESULT ===")
         for a in agents:
             print(f'{a["name"]} (Team {a["team"]}): {a["score"]}')
-
-        # ===== 確率表示 =====
-        f1.show_p()
