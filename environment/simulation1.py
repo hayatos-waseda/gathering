@@ -26,7 +26,7 @@ class Simulation1:
 
         # ===== 環境 =====
         grid = MapLoader.load_map(config["environment"]["map_path"])
-        f1 = Field1(rnd, grid)
+        f1 = Field1(rnd, grid, config["environment"])
 
         # ===== Agentクラス対応表 =====
         AGENT_MAP = {
