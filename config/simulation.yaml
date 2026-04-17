@@ -10,17 +10,17 @@ agents:
   - name: playerA2
     team: A
     type: AgentA
-    start_pos: [0, 1]
+    start_pos: [6, 0]
 
   - name: playerB1
     team: B
     type: AgentB
-    start_pos: [4, 4]
+    start_pos: [0, 6]
 
   - name: playerB2
     team: B
     type: AgentB
-    start_pos: [4, 3]
+    start_pos: [6, 6]
 
 render:
   mode: gif

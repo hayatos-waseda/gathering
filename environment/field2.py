@@ -4,9 +4,10 @@ import random
 import numpy as np
 from environment.map_loader import MapLoader
 
-class Field1:
-    def __init__(self, rnd, grid):
-
+class Field:
+    def __init__(self, rnd, grid, config):
+        
+        self.grid = grid
         self.field = MapLoader.build_field_from_map(grid)
         self.grid_size = len(grid)
 
@@ -14,25 +15,18 @@ class Field1:
         self.p = np.zeros((self.grid_size, self.grid_size))
 
         # 確率リスト生成
-        p_set = [0.05, 0.01, 0.001]
-        p_rate = [0.1, 0.5, 0.4]
+        p_set = config["event"]["p_set"]
+        p_prob = config["event"]["p_distribution"]
 
-        num_p = []
-        p_list = []
+        for y in range(self.grid_size):
+            for x in range(self.grid_size):
 
-        for i in range(3):
-            app = int(round(self.grid_size * self.grid_size * p_rate[i]))
-            num_p.append(app)
-            for _ in range(num_p[i]):
-                p_list.append(p_set[i])
+                if grid[y][x] == "#":
+                    self.p[x][y] = 0.0
+                    continue
 
-        rnd.shuffle(p_list)
+                self.p[x][y] = rnd.choices(p_set, weights=p_prob, k=1)[0]
 
-        # 配置
-        for i in range(self.grid_size):
-            for j in range(self.grid_size):
-                self.event[i][j] = 0
-                self.p[i][j] = p_list[i*5 + j]
 
     # イベント発生
     def happen_event(self, rnd):

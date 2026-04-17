@@ -1,7 +1,7 @@
 # simulation/simulation1.py
 
 from environment.map_loader import MapLoader
-from environment.field1 import Field1
+from environment.field2 import Field
 from agent.agent_a import AgentA
 from agent.agent_b import AgentB
 from renderer.gif_maker import GIFMaker
@@ -26,7 +26,7 @@ class Simulation1:
 
         # ===== 環境 =====
         grid = MapLoader.load_map(config["environment"]["map_path"])
-        f1 = Field1(rnd, grid, config["environment"])
+        f1 = Field(rnd, grid, config["environment"])
 
         # ===== Agentクラス対応表 =====
         AGENT_MAP = {
