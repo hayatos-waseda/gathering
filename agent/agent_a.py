@@ -6,7 +6,7 @@ class AgentA:
         self.field = field
         self.pos = pos[:] 
         self.status = "active"
-        self.action_a = ActionA(rnd, field, pos)
+        self.action_a = ActionA(rnd, field)
         self.broken_time = -1
         self.attack_range = 2
 
@@ -53,17 +53,14 @@ class AgentA:
                 break
         return hit      
 
-    def respawn(self, rnd, field):
+    def respawn(self, rnd):
         while True:
-            x = rnd.randrange(field.grid_size)
-            y = rnd.randrange(field.grid_size)
+            x = rnd.randrange(self.field.grid_size)
+            y = rnd.randrange(self.field.grid_size)
 
-            # 壁じゃない
-            if field.grid[y][x] == "#":
-                continue
-
-            self.pos = [x, y]
-            break
+            if self.field.is_path(x, y):
+                self.pos = [x, y]
+                break
 
     def can_act(self, time, rnd):
         if self.status != "broken":
@@ -73,7 +70,7 @@ class AgentA:
             return False
 
         self.status = "active"
-        self.respawn(rnd, self.field)
+        self.respawn(rnd)
         return True
 
     def get_pos(self):

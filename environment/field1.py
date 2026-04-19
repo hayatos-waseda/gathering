@@ -40,9 +40,9 @@ class Field:
         if act is None:
             return self.field[x][y]
         return self.field[x][y][act]
-
-    def get_field(self):
-        return self.field
+    
+    def is_path(self, x, y):
+        return self.grid[y][x] != "#"
 
     # イベント取得
     def acquire_event(self, x, y):

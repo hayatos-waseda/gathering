@@ -9,6 +9,9 @@ class FieldView:
 
     def get_event(self, x, y):
         return self._field.get_event(x, y)
+
+    def is_path(self, x, y):
+        return self._field.is_path(x, y)
     
     @property
     def grid_size(self):
