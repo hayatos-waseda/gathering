@@ -4,14 +4,14 @@ from agent.action_b import ActionB
 class AgentB:
     def __init__(self, rnd, field, pos):
         self.field = field
-        self.pos = pos[:]
+        self.pos = pos[:] 
         self.status = "active"
-        self.action_a = ActionB(rnd, field, pos)
+        self.action_b = ActionB(rnd, field, pos)
         self.broken_time = -1
         self.attack_range = 2
 
-    def action(self, e_pos):
-        return self.action_a.act(self.pos, e_pos)
+    def action(self, a_data, e_data):
+        return self.action_b.act(self.pos, a_data, e_data)
 
     def move(self, act):
         x, y = self.pos

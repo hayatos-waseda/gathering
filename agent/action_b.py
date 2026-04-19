@@ -7,5 +7,5 @@ class ActionB:
         self.field = field
         self.rnd = rnd
 
-    def act(self, pos, e_pos):
+    def act(self, pos, a_data, e_data):
         return self.rnd.randint(0, 7)

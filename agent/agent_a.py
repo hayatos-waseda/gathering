@@ -10,8 +10,8 @@ class AgentA:
         self.broken_time = -1
         self.attack_range = 2
 
-    def action(self, e_pos):
-        return self.action_a.act(self.pos, e_pos)
+    def action(self, a_data, e_data):
+        return self.action_a.act(self.pos, a_data, e_data)
 
     def move(self, act):
         x, y = self.pos
