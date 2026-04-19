@@ -8,7 +8,7 @@ class AgentB:
         self.status = "active"
         self.action_a = ActionB(rnd, field, pos)
         self.broken_time = -1
-        self.attack_range = 10
+        self.attack_range = 2
 
     def action(self, e_pos):
         return self.action_a.act(self.pos, e_pos)

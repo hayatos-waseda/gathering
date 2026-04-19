@@ -10,7 +10,7 @@ import yaml
 import random
 
 
-class Simulation1:
+class Simulation:
 
     @staticmethod
     def start(config_path="config/simulation.yaml"):
@@ -42,14 +42,14 @@ class Simulation1:
             agent = cls(
                 rnd,
                 f1,
-                conf["start_pos"]
+                conf["start_pos"],
             )
 
             agents.append({
                 "name": conf["name"],
                 "team": conf["team"],
                 "obj": agent,
-                "score": 0
+                "score": 0,
             })
 
         # ===== renderer =====
@@ -137,7 +137,8 @@ class Simulation1:
                     event=f1.event,
                     positions=positions,
                     actions=actions,
-                    teams=[a["team"] for a in agents]
+                    teams=[a["team"] for a in agents],
+                    attack_ranges =[a["obj"].attack_range for a in agents]
                 )
 
         # ===== 保存 =====
