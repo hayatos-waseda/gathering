@@ -108,26 +108,36 @@ class GIFMaker:
             return []
 
         x, y = pos
-
         dx, dy = 0, 0
-        if action == 4:
-            dy = 1
-        elif action == 5:
-            dx = 1
-        elif action == 6:
-            dy = -1
-        elif action == 7:
-            dx = -1
+        if action == 4: dy = 1
+        elif action == 5: dx = 1
+        elif action == 6: dy = -1
+        elif action == 7: dx = -1
 
-        # 範囲外は描画しない（重要）
-        nx, ny = x + dx, y + dy
-        if not (0 <= nx < self.grid_size and 0 <= ny < self.grid_size):
+        attack_range = 10  # エージェントの射程に合わせる
+        end_x, end_y = x, y
+
+        for _ in range(attack_range):
+            nx, ny = end_x + dx, end_y + dy
+            
+            # マップ外判定
+            if not (0 <= nx < self.grid_size and 0 <= ny < self.grid_size):
+                break
+            
+            # 壁判定
+            if self.map[ny][nx] == "#":
+                break+
+            
+            end_x, end_y = nx, ny
+
+        # 目の前がすぐ壁などで攻撃が1マスも伸びなかった場合
+        if end_x == x and end_y == y:
             return []
 
         return [
             self.ax.plot(
-                [x, nx],
-                [y, ny],
+                [x, end_x],
+                [y, end_y],
                 color=color,
                 linewidth=3,
                 alpha=0.7

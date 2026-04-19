@@ -95,7 +95,7 @@ class Simulation1:
             hits = [0] * len(agents)
 
             for i, a in enumerate(agents):
-                if actions[i] >= 4:
+                if actions[i] >= 4 and actions[i] < 8:
                     for j, b in enumerate(agents):
 
                         # 敵のみ対象

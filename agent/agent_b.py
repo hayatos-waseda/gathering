@@ -4,10 +4,11 @@ from agent.action_b import ActionB
 class AgentB:
     def __init__(self, rnd, field, pos):
         self.field = field
-        self.pos = pos[:]  # コピー重要
+        self.pos = pos[:]
         self.status = "active"
         self.action_a = ActionB(rnd, field, pos)
-        self.broken_time = -10**9  # Integer.MIN_VALUE相当
+        self.broken_time = -1
+        self.attack_range = 10
 
     def action(self, e_pos):
         return self.action_a.act(self.pos, e_pos)
@@ -30,22 +31,27 @@ class AgentB:
 
     def attack(self, act, e_pos):
         hit = 0
-        #攻撃範囲はここで設定できそう
+        
+        curr_x, curr_y = self.pos[0], self.pos[1]
+        move_dir = act - 4 
 
-        if act == 4:  # 上攻撃
-            if self.pos[0] == e_pos[0] and self.pos[1] == e_pos[1] - 1:
-                hit = 1
-        elif act == 5:  # 右攻撃
-            if self.pos[1] == e_pos[1] and self.pos[0] == e_pos[0] - 1:
-                hit = 1
-        elif act == 6:  # 下攻撃
-            if self.pos[0] == e_pos[0] and self.pos[1] == e_pos[1] + 1:
-                hit = 1
-        elif act == 7:  # 左攻撃
-            if self.pos[1] == e_pos[1] and self.pos[0] == e_pos[0] + 1:
-                hit = 1
-
-        return hit
+        # 射程距離の分だけ1マスずつ判定を進める
+        for _ in range(self.attack_range):
+            # get_pos_status が 1 なら壁やマップ端がない
+            if self.field.get_pos_status(curr_x, curr_y, move_dir) == 1:
+                # 座標を1マス進める
+                if move_dir == 0: curr_y += 1
+                elif move_dir == 1: curr_x += 1
+                elif move_dir == 2: curr_y -= 1
+                elif move_dir == 3: curr_x -= 1
+                
+                # 敵がその座標にいればヒット
+                if curr_x == e_pos[0] and curr_y == e_pos[1]:
+                    hit = 1
+                    break
+            else:
+                break
+        return hit      
 
     def respawn(self, rnd, field):
         while True:
