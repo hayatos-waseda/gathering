@@ -73,19 +73,17 @@ class Simulation:
 
                 if agent.can_act(time, rnd):
 
-                    ally_positions = [
-                        b["obj"].get_pos()
+                    ally_data = [
+                        {"pos": b["obj"].get_pos(), "status": b["obj"].get_status()}
                         for b in agents
                         if b["team"] == a["team"] and b["name"] != a["name"]
                     ]
-                    # 敵の位置リスト
-                    enemy_positions = [
-                        b["obj"].get_pos()
-                        for b in agents
-                        if b["team"] != a["team"]
+                    enemy_data = [
+                        {"pos": b["obj"].get_pos(), "status": b["obj"].get_status()}
+                        for b in agents if b["team"] != a["team"]
                     ]
 
-                    action = agent.action(ally_positions,enemy_positions)
+                    action = agent.action(ally_data,enemy_data)
 
                 else:
                     action = 8  # 何もしない
