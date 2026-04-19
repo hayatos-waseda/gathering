@@ -26,7 +26,6 @@ class Simulation:
         rnd = random.Random(seed_num)
 
         # ===== 環境 =====
-        grid = MapLoader.load_map(config["environment"]["map_path"])
         field = Field(rnd, config["environment"])
         field_view = FieldView(field)
         grid = field.grid
@@ -104,7 +103,6 @@ class Simulation:
                 if actions[i] >= 4 and actions[i] < 8:
                     for j, b in enumerate(agents):
 
-                        # 敵のみ対象
                         if i != j:
                             hit = a["obj"].attack(
                                 actions[i],
@@ -127,7 +125,7 @@ class Simulation:
                     continue
 
                 # 同マス判定
-                same_cell = sum(1 for p in positions if p == pos) > 1
+                same_cell = positions.count(pos) > 1
 
                 if same_cell:
                     field.acquire_event(pos[0], pos[1])

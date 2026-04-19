@@ -1,4 +1,4 @@
-# agent/agent_a.py
+# agent/agent_b.py
 from agent.action_b import ActionB
 
 class AgentB:

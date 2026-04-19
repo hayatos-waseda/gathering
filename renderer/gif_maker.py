@@ -1,4 +1,4 @@
-# renderer/simple_gif_maker.py
+# renderer/gif_maker.py
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -20,39 +20,33 @@ class GIFMaker:
         self.frames = []
         self.fig, self.ax = plt.subplots(figsize=(5, 5))
 
-    def update(self, step, scores, event, positions, actions, teams, attack_ranges):
-        artists = []
-
-        # ===== 軸固定（超重要） =====
+        # ===== 静的要素はinitで一度だけ設定 =====
         self.ax.set_xlim(-0.5, self.grid_size - 0.5)
         self.ax.set_ylim(-0.5, self.grid_size - 0.5)
         self.ax.set_aspect("equal")
         self.ax.set_autoscale_on(False)
 
-        # ===== 背景 =====
-        grid = np.zeros((self.grid_size, self.grid_size))
-        im = self.ax.imshow(grid, cmap="Greys", vmin=0, vmax=1)
-        artists.append(im)
-
-        # ===== グリッド線 =====
         self.ax.set_xticks(np.arange(0, self.grid_size, 1))
         self.ax.set_yticks(np.arange(0, self.grid_size, 1))
         self.ax.tick_params(which='major', length=0)
-
         self.ax.set_xticks(np.arange(-0.5, self.grid_size, 1), minor=True)
         self.ax.set_yticks(np.arange(-0.5, self.grid_size, 1), minor=True)
         self.ax.grid(which='minor', color="black", linestyle='-', linewidth=1)
 
-        # ===== 壁 =====
-        if self.map is not None:
-            for y in range(self.grid_size):
-                for x in range(self.grid_size):
-                    if self.map[y][x] == "#":
-                        artists.append(
-                            self.ax.add_patch(
-                                Rectangle((x - 0.5, y - 0.5), 1, 1, color="black")
-                            )
+        # ===== 壁パッチも使い回す =====
+        self.static_artists = []
+        for y in range(self.grid_size):
+            for x in range(self.grid_size):
+                if self.map[y][x] == "#":
+                    self.static_artists.append(
+                        self.ax.add_patch(
+                            Rectangle((x - 0.5, y - 0.5), 1, 1, color="black")
                         )
+                    )
+
+    def update(self, step, scores, event, positions, actions, teams, attack_ranges):
+        # 静的要素を使い回し、動的要素だけ毎フレーム生成
+        artists = list(self.static_artists)
 
         # ===== イベント =====
         for x in range(self.grid_size):
@@ -67,15 +61,40 @@ class GIFMaker:
                     )
 
         # ===== エージェント =====
+        # for pos, team in zip(positions, teams):
+        #     if pos[0] < 0:
+        #         continue
+
+        #     color = TEAM_COLORS.get(team, "green")
+
+        #     artists.append(
+        #         self.ax.add_patch(
+        #             Circle((pos[0], pos[1]), 0.3, color=color, zorder=3)
+        #         )
+        #     )
+        cell_groups = defaultdict(list)
+        for i, (pos, team) in enumerate(zip(positions, teams)):
+            if pos[0] >= 0:
+                cell_groups[tuple(pos)].append((team,))
+
+        cell_count = defaultdict(int)
+
         for pos, team in zip(positions, teams):
             if pos[0] < 0:
                 continue
 
-            color = TEAM_COLORS.get(team, "green")
+            key = tuple(pos)
+            n = len(cell_groups[key])
+            idx = cell_count[key]
+            cell_count[key] += 1
 
+            # n体いるときのidx番目のオフセット
+            offset = (idx - (n - 1) / 2) * 0.25
+
+            color = TEAM_COLORS.get(team, "green")
             artists.append(
                 self.ax.add_patch(
-                    Circle((pos[0], pos[1]), 0.3, color=color, zorder=3)
+                    Circle((pos[0] + offset, pos[1]), 0.2, color=color, zorder=3)
                 )
             )
 
@@ -119,15 +138,15 @@ class GIFMaker:
 
         for _ in range(attack_range):
             nx, ny = end_x + dx, end_y + dy
-            
+
             # マップ外判定
             if not (0 <= nx < self.grid_size and 0 <= ny < self.grid_size):
                 break
-            
+
             # 壁判定
             if self.map[ny][nx] == "#":
                 break
-            
+
             end_x, end_y = nx, ny
 
         # 目の前がすぐ壁などで攻撃が1マスも伸びなかった場合
