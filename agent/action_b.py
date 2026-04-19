@@ -3,8 +3,8 @@
 import random
 
 class ActionB:
-    def __init__(self, rnd, field, pos):
-        self.field = field
+    def __init__(self, rnd, field_view):
+        self.field = field_view
         self.rnd = rnd
 
     def act(self, pos, a_data, e_data):

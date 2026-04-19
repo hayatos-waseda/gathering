@@ -2,6 +2,7 @@
 
 from environment.map_loader import MapLoader
 from environment.field1 import Field
+from environment.field_view import FieldView
 from agent.agent_a import AgentA
 from agent.agent_b import AgentB
 from renderer.gif_maker import GIFMaker
@@ -27,6 +28,7 @@ class Simulation:
         # ===== 環境 =====
         grid = MapLoader.load_map(config["environment"]["map_path"])
         field = Field(rnd, config["environment"])
+        field_view = FieldView(field)
         grid = field.grid
 
         # ===== Agentクラス対応表 =====
@@ -42,7 +44,7 @@ class Simulation:
 
             agent = cls(
                 rnd,
-                field,
+                field_view,
                 conf["start_pos"],
             )
 
