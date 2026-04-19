@@ -1,7 +1,7 @@
 # simulation/simulation1.py
 
 from environment.map_loader import MapLoader
-from environment.field2 import Field
+from environment.field1 import Field
 from agent.agent_a import AgentA
 from agent.agent_b import AgentB
 from renderer.gif_maker import GIFMaker
@@ -26,7 +26,8 @@ class Simulation:
 
         # ===== 環境 =====
         grid = MapLoader.load_map(config["environment"]["map_path"])
-        f1 = Field(rnd, grid, config["environment"])
+        field = Field(rnd, config["environment"])
+        grid = field.grid
 
         # ===== Agentクラス対応表 =====
         AGENT_MAP = {
@@ -41,7 +42,7 @@ class Simulation:
 
             agent = cls(
                 rnd,
-                f1,
+                field,
                 conf["start_pos"],
             )
 
@@ -62,7 +63,7 @@ class Simulation:
         for time in range(max_step):
 
             # --- イベント発生 ---
-            f1.happen_event(rnd)
+            field.happen_event(rnd)
 
             # ===== 行動決定 =====
             actions = []
@@ -124,17 +125,17 @@ class Simulation:
                 same_cell = sum(1 for p in positions if p == pos) > 1
 
                 if same_cell:
-                    f1.acquire_event(pos[0], pos[1])
+                    field.acquire_event(pos[0], pos[1])
                 else:
                     if a["obj"].get_status() != "broken":
-                        a["score"] += f1.acquire_event(pos[0], pos[1])
+                        a["score"] += field.acquire_event(pos[0], pos[1])
 
             # ===== 描画 =====
             if render_mode == "gif" and time <= 100:
                 gif.update(
                     step=time,
                     scores=[a["score"] for a in agents],
-                    event=f1.event,
+                    event=field.event,
                     positions=positions,
                     actions=actions,
                     teams=[a["team"] for a in agents],
@@ -147,7 +148,7 @@ class Simulation:
 
         # ===== 確率表示 =====
         print("=== Reward Table ===")
-        f1.show_p()
+        field.show_p()
 
         # ===== 結果出力 =====
         print("=== RESULT ===")
