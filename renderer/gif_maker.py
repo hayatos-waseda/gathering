@@ -20,7 +20,7 @@ class GIFMaker:
         self.frames = []
         self.fig, self.ax = plt.subplots(figsize=(5, 5))
 
-    def update(self, step, scores, event, positions, actions, teams):
+    def update(self, step, scores, event, positions, actions, teams, attack_ranges):
         artists = []
 
         # ===== 軸固定（超重要） =====
@@ -35,12 +35,13 @@ class GIFMaker:
         artists.append(im)
 
         # ===== グリッド線 =====
-        self.ax.set_xticks(np.arange(-0.5, self.grid_size, 1))
-        self.ax.set_yticks(np.arange(-0.5, self.grid_size, 1))
-        self.ax.grid(color="black", linestyle='-', linewidth=1)
+        self.ax.set_xticks(np.arange(0, self.grid_size, 1))
+        self.ax.set_yticks(np.arange(0, self.grid_size, 1))
+        self.ax.tick_params(which='major', length=0)
 
-        self.ax.set_xticklabels([])
-        self.ax.set_yticklabels([])
+        self.ax.set_xticks(np.arange(-0.5, self.grid_size, 1), minor=True)
+        self.ax.set_yticks(np.arange(-0.5, self.grid_size, 1), minor=True)
+        self.ax.grid(which='minor', color="black", linestyle='-', linewidth=1)
 
         # ===== 壁 =====
         if self.map is not None:
@@ -79,9 +80,9 @@ class GIFMaker:
             )
 
         # ===== 攻撃エフェクト =====
-        for pos, action, team in zip(positions, actions, teams):
+        for pos, action, team, attack_range in zip(positions, actions, teams, attack_ranges):
             color = TEAM_COLORS.get(team, "green")
-            artists += self.draw_attack(pos, action, color)
+            artists += self.draw_attack(pos, action, color, attack_range)
 
         # ===== テキスト =====
         team_score = defaultdict(int)
@@ -103,33 +104,42 @@ class GIFMaker:
 
         self.frames.append(artists)
 
-    def draw_attack(self, pos, action, color):
+    def draw_attack(self, pos, action, color, attack_range):
         if pos[0] < 0 or action is None or action < 4:
             return []
 
         x, y = pos
-
         dx, dy = 0, 0
-        if action == 4:
-            dy = 1
-        elif action == 5:
-            dx = 1
-        elif action == 6:
-            dy = -1
-        elif action == 7:
-            dx = -1
+        if action == 4: dy = 1
+        elif action == 5: dx = 1
+        elif action == 6: dy = -1
+        elif action == 7: dx = -1
 
-        # 範囲外は描画しない（重要）
-        nx, ny = x + dx, y + dy
-        if not (0 <= nx < self.grid_size and 0 <= ny < self.grid_size):
+        end_x, end_y = x, y
+
+        for _ in range(attack_range):
+            nx, ny = end_x + dx, end_y + dy
+            
+            # マップ外判定
+            if not (0 <= nx < self.grid_size and 0 <= ny < self.grid_size):
+                break
+            
+            # 壁判定
+            if self.map[ny][nx] == "#":
+                break
+            
+            end_x, end_y = nx, ny
+
+        # 目の前がすぐ壁などで攻撃が1マスも伸びなかった場合
+        if end_x == x and end_y == y:
             return []
 
         return [
             self.ax.plot(
-                [x, nx],
-                [y, ny],
+                [x, end_x],
+                [y, end_y],
                 color=color,
-                linewidth=3,
+                linewidth=5,
                 alpha=0.7
             )[0]
         ]
