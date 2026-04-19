@@ -2,11 +2,11 @@
 from agent.action_a import ActionA
 
 class AgentA:
-    def __init__(self, rnd, field, pos):
-        self.field = field
+    def __init__(self, rnd, field_view, pos):
+        self.field = field_view
         self.pos = pos[:] 
         self.status = "active"
-        self.action_a = ActionA(rnd, field)
+        self.action_a = ActionA(rnd, field_view)
         self.broken_time = -1
         self.attack_range = 2
 
