@@ -1,10 +1,8 @@
 # simulation/simulation1.py
 
 from environment.map_loader import MapLoader
-from environment.field1 import Field
+from environment.field1 import Field1 as Field
 from environment.field_view import FieldView
-from agent.agent_a import AgentA
-from agent.agent_b import AgentB
 from renderer.gif_maker import GIFMaker
 
 import yaml
@@ -14,7 +12,10 @@ import random
 class Simulation:
 
     @staticmethod
-    def start(config_path="config/simulation.yaml"):
+    def start(config_path, agent_a, agent_b):
+        config_path="config/simulation.yaml"
+        AgentA = agent_a
+        AgentB = agent_b
 
         # ===== config読み込み =====
         with open(config_path, "r") as f:
@@ -52,6 +53,8 @@ class Simulation:
                 "team": conf["team"],
                 "obj": agent,
                 "score": 0,
+                "attack_count": 0,
+                "broken_count": 0
             })
 
         # ===== renderer =====
@@ -111,6 +114,8 @@ class Simulation:
 
                             if hit:
                                 b["obj"].broken(time)
+                                a["attack_count"] += 1
+                                b["broken_count"] += 1
                                 hits[i] = 1
 
             # ===== 位置取得 =====
@@ -156,4 +161,7 @@ class Simulation:
         # ===== 結果出力 =====
         print("=== RESULT ===")
         for a in agents:
-            print(f'{a["name"]} (Team {a["team"]}): {a["score"]}')
+            print(f'{a["name"]} (Team {a["team"]}):')
+            print(f'  {"Score:":<15} {a["score"]:>5}')
+            print(f'  {"Attack Success:":<15} {a["attack_count"]:>5}')
+            print(f'  {"Broken:":<15} {a["broken_count"]:>5}')

@@ -8,7 +8,7 @@ class ActionA:
         self.rnd = rnd
 
     def act(self, pos, a_data, e_data):
-        #　ここの中を編集しよう！
+        # ここの中を編集しよう！
 
         # 使える変数など
         # pos: 自分の現在座標 例) [3, 4]
@@ -18,4 +18,4 @@ class ActionA:
         # self.field.get_event(x, y): ★があれば1, なければ0
         # 例) self.field.get_event(3, 4) -> 1
         
-        return self.rnd.randint(0, 7)
+        return self.rnd.randint(0, 7) #このままではrandom.pyと同じ

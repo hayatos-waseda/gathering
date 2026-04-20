@@ -1,5 +1,5 @@
 # agent/agent_b.py
-from agent.action_b import ActionB
+from agent.random import RandomAct as ActionB
 
 class AgentB:
     def __init__(self, rnd, field_view, pos):
