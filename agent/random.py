@@ -2,7 +2,7 @@
 
 import random
 
-class ActionB:
+class RandomAct:
     def __init__(self, rnd, field_view):
         self.field = field_view
         self.rnd = rnd

@@ -103,8 +103,9 @@ class ActionA:
 
     def act(self, pos, a_data, e_data):
         # ここを実装する
-        return self.rnd.randint(0, 7)
+        return 
 ```
+実装したら、agent_aにインポートするファイルを変更してください。
 
 ### 引数
 
