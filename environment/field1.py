@@ -4,7 +4,7 @@ import random
 import numpy as np
 from environment.map_loader import MapLoader
 
-class Field1:
+class Field:
     def __init__(self, rnd, env_config):
         
         self.grid = MapLoader.load_map(env_config["map_path"])
