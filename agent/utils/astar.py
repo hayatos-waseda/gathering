@@ -7,7 +7,7 @@ def heuristic(a, b):
     return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
 
-def astar(field_view, start, goal):
+def Astar(field_view, start, goal):
 
     start = tuple(start)
     goal = tuple(goal)

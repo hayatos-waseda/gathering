@@ -1,7 +1,7 @@
 # simulation/simulation1.py
 
 from environment.map_loader import MapLoader
-from environment.field1 import Field
+from environment.field1 import Field1 as Field
 from environment.field_view import FieldView
 from renderer.gif_maker import GIFMaker
 
