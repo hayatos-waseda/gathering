@@ -1,4 +1,5 @@
 # agent/agent_a.py
+# from agent.action_a import ActionA
 from agent.random import RandomAct as ActionA
 #from,importを変更し作成したファイルに切り替える
 
