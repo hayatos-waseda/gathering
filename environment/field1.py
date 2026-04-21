@@ -59,5 +59,5 @@ class Field1:
     def show_p(self):
         for i in range(self.grid_size):
             for j in range(self.grid_size):
-                print(self.get_p(j, i), end=", ")
+                print(f"{self.get_p(j, i):6.3f}", end=" ")
             print()
