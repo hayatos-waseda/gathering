@@ -94,18 +94,12 @@ class Simulation:
 
                 actions.append(action)
 
-            # ===== 移動 =====
-            for i, a in enumerate(agents):
-                if actions[i] < 4:
-                    a["obj"].move(actions[i])
-
             # ===== 攻撃 =====
-            hits = [0] * len(agents)
+            broken_flags = [False]*len(agents)
 
             for i, a in enumerate(agents):
                 if actions[i] >= 4 and actions[i] < 8:
                     for j, b in enumerate(agents):
-
                         if i != j:
                             hit = a["obj"].attack(
                                 actions[i],
@@ -113,10 +107,19 @@ class Simulation:
                             )
 
                             if hit:
-                                b["obj"].broken(time)
+                                broken_flags[j] = True
                                 a["attack_count"] += 1
-                                b["broken_count"] += 1
-                                hits[i] = 1
+
+            for j, b in enumerate(agents):
+                if broken_flags[j]:
+                    b["obj"].broken(time)
+                    b["broken_count"] += 1
+            
+            # ===== 移動 =====
+            for i, a in enumerate(agents):
+                if actions[i] < 4 and a["obj"].get_status() == "active":
+                    a["obj"].move(actions[i])
+
 
             # ===== 位置取得 =====
             positions = [a["obj"].get_pos() for a in agents]
@@ -126,7 +129,7 @@ class Simulation:
                 pos = positions[i]
 
                 # 無効位置
-                if pos[0] == -1:
+                if a["obj"].get_status() == "broken":
                     continue
 
                 # 同マス判定
@@ -135,8 +138,7 @@ class Simulation:
                 if same_cell:
                     field.acquire_event(pos[0], pos[1])
                 else:
-                    if a["obj"].get_status() != "broken":
-                        a["score"] += field.acquire_event(pos[0], pos[1])
+                    a["score"] += field.acquire_event(pos[0], pos[1])
 
             # ===== 描画 =====
             if render_mode == "gif" and time <= 100:

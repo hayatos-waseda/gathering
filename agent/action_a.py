@@ -1,5 +1,5 @@
 # agent/action_a.py
-
+from agent.utils.astar import astar
 import random
 
 class ActionA:
