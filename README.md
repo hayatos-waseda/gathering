@@ -119,7 +119,7 @@ class ActionA:
 
 ```python
 [
-    {"pos": [x, y], "status": "active"},  # active または broken
+    {"pos": [x, y], "status": "active"},  # active 、broken　または　invincible
     ...
 ]
 ```

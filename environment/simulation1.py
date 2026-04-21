@@ -69,6 +69,8 @@ class Simulation:
             # --- イベント発生 ---
             field.happen_event(rnd)
 
+            prev_positions = [a["obj"].get_pos()[:] for a in agents]
+
             # ===== 行動決定 =====
             actions = []
 
@@ -93,9 +95,15 @@ class Simulation:
                     action = 8  # 何もしない
 
                 actions.append(action)
+            
+            # ===== 移動 =====
+            for i, a in enumerate(agents):
+                if actions[i] < 4 and a["obj"].get_status() != "broken":
+                    a["obj"].move(actions[i])
 
             # ===== 攻撃 =====
-            broken_flags = [False]*len(agents)
+            hit_flags = [False]*len(agents)
+            broken_positions = [None] * len(agents)
 
             for i, a in enumerate(agents):
                 if actions[i] >= 4 and actions[i] < 8:
@@ -107,18 +115,16 @@ class Simulation:
                             )
 
                             if hit:
-                                broken_flags[j] = True
+                                hit_flags[j] = True
                                 a["attack_count"] += 1
 
             for j, b in enumerate(agents):
-                if broken_flags[j]:
-                    b["obj"].broken(time)
-                    b["broken_count"] += 1
-            
-            # ===== 移動 =====
-            for i, a in enumerate(agents):
-                if actions[i] < 4 and a["obj"].get_status() == "active":
-                    a["obj"].move(actions[i])
+                if hit_flags[j]:
+                    current_pos = b["obj"].get_pos()[:]
+                    broken = b["obj"].broken(time)
+                    if broken :
+                        b["broken_count"] += 1
+                        broken_positions[j] = current_pos
 
 
             # ===== 位置取得 =====
@@ -146,10 +152,13 @@ class Simulation:
                     step=time,
                     scores=[a["score"] for a in agents],
                     event=field.event,
-                    positions=positions,
-                    actions=actions,
                     teams=[a["team"] for a in agents],
-                    attack_ranges =[a["obj"].attack_range for a in agents]
+                    attack_ranges =[a["obj"].attack_range for a in agents],
+                    prev_positions= prev_positions,
+                    positions=positions,
+                    statuses=[a["obj"].get_status() for a in agents],
+                    actions=actions,
+                    broken_positions=broken_positions
                 )
 
         # ===== 保存 =====

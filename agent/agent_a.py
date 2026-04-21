@@ -7,13 +7,20 @@ class AgentA:
     def __init__(self, rnd, field_view, pos):
         self.field = field_view
         self.pos = pos[:] 
-        self.status = "active"
         self.action_a = ActionA(rnd, field_view)
-        self.broken_time = -1
+
+        #エージェントの特性
+        self.broken_duration = 6
+        self.invincible_duration = 3
         self.attack_range = 2
 
+        #初期値
+        self.status = "active"
+        self.broken_time = -1
+        self.invincible_time = -1
+
     def action(self, a_data, e_data):
-        return self.action_a.act(self.pos, a_data, e_data)
+        return self.action_a.act(self.pos, self.status, a_data, e_data)
 
     def move(self, act):
         x, y = self.pos
@@ -65,16 +72,24 @@ class AgentA:
                 break
 
     def can_act(self, time, rnd):
-        if self.status != "broken":
+        if self.status == "active":
             return True
 
-        if time - self.broken_time < 6:
+        if self.status == "invincible":
+            if time - self.invincible_time >= self.invincible_duration:
+                self.status = "active"
+            return True
+
+        if self.status == "broken":
+            if time - self.broken_time >= self.broken_duration:
+                self.status = "invincible"
+                self.invincible_time = time
+                self.respawn(rnd)
+                return True
             return False
-
-        self.status = "active"
-        self.respawn(rnd)
-        return True
-
+        
+        return False
+    
     def get_pos(self):
         return self.pos
 
@@ -82,7 +97,10 @@ class AgentA:
         return self.status
 
     def broken(self, time):
+        if self.status == "invincible":
+            return False
         self.status = "broken"
         self.broken_time = time
         self.pos[0] = -1
         self.pos[1] = -1
+        return True
