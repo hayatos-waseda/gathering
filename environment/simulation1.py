@@ -5,6 +5,9 @@ from environment.field1 import Field1 as Field
 from environment.field_view import FieldView
 from renderer.gif_maker import GIFMaker
 
+from agent.commander_a import CommanderA
+from agent.commander_b import CommanderB
+
 import yaml
 import random
 
@@ -43,7 +46,6 @@ class Simulation:
             cls = AGENT_MAP[conf["type"]]
 
             agent = cls(
-                rnd,
                 field_view,
                 conf["start_pos"],
             )
@@ -57,6 +59,17 @@ class Simulation:
                 "broken_count": 0
             })
 
+
+        # ===== Commander生成=====
+        commanders = {
+            "A": CommanderA(rnd, field_view),
+            "B": CommanderB(rnd, field_view),
+        }
+        team_indices = {}
+        for i, a in enumerate(agents):
+            team_indices.setdefault(a["team"], []).append(i)
+
+        
         # ===== renderer =====
         render_mode = config["render"]["mode"]
 
@@ -71,30 +84,44 @@ class Simulation:
 
             prev_positions = [a["obj"].get_pos()[:] for a in agents]
 
+            # ===== 行動可能かどうか =====
+            can_act_flags = [
+                agents[i]["obj"].can_act(time, rnd)
+                for i in range(len(agents))
+            ]
+
             # ===== 行動決定 =====
-            actions = []
-
-            for a in agents:
-                agent = a["obj"]
-
-                if agent.can_act(time, rnd):
-
-                    ally_data = [
-                        {"pos": b["obj"].get_pos(), "status": b["obj"].get_status()}
-                        for b in agents
-                        if b["team"] == a["team"] and b["name"] != a["name"]
-                    ]
-                    enemy_data = [
-                        {"pos": b["obj"].get_pos(), "status": b["obj"].get_status()}
-                        for b in agents if b["team"] != a["team"]
-                    ]
-
-                    action = agent.action(ally_data,enemy_data)
-
-                else:
-                    action = 8  # 何もしない
-
-                actions.append(action)
+            actions = [8] * len(agents)  # デフォルトは「何もしない」
+ 
+            for team, indices in team_indices.items():
+                commander = commanders[team]
+ 
+                active_indices = [i for i in indices if can_act_flags[i]]
+ 
+                if not active_indices:
+                    continue
+ 
+                team_data = [
+                    {
+                        "pos": agents[i]["obj"].get_pos(),
+                        "status": agents[i]["obj"].get_status(),
+                    }
+                    for i in active_indices
+                ]
+ 
+                enemy_data = [
+                    {
+                        "pos": agents[j]["obj"].get_pos(),
+                        "status": agents[j]["obj"].get_status(),
+                    }
+                    for j in range(len(agents))
+                    if agents[j]["team"] != team
+                ]
+ 
+                decided = commander.decide(team_data, enemy_data)
+ 
+                for k, i in enumerate(active_indices):
+                    actions[i] = decided[k] if k < len(decided) else 8
             
             # ===== 移動 =====
             for i, a in enumerate(agents):

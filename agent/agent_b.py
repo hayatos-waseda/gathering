@@ -1,11 +1,9 @@
 # agent/agent_b.py
-from agent.random import RandomAct as ActionB
 
 class AgentB:
-    def __init__(self, rnd, field_view, pos):
+    def __init__(self, field_view, pos):
         self.field = field_view
         self.pos = pos[:] 
-        self.action_b = ActionB(rnd, field_view)
 
         #エージェントの特性
         self.broken_duration = 6
@@ -17,8 +15,6 @@ class AgentB:
         self.broken_time = -1
         self.invincible_time = -1
 
-    def action(self, a_data, e_data):
-        return self.action_b.act(self.pos, self.status, a_data, e_data)
 
     def move(self, act):
         x, y = self.pos
