@@ -7,7 +7,4 @@ class CommanderB:
 
     def decide(self, team_data, enemy_data):
         #ランダムに行動決定
-        actions = []
-        for agent in team_data:
-            actions.append(self.rnd.randint(0, 7))
-        return actions
+        return [self.rnd.randint(0, 7) for _ in team_data]

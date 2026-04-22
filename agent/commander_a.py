@@ -30,7 +30,4 @@ class CommanderA:
         # team_data の順番と返り値リストの順番は対応しています。
         # 例: return [action_for_agent0, action_for_agent1]
 
-        actions = []
-        for agent in team_data:
-            actions.append(self.rnd.randint(0, 7))
-        return actions
+        return [self.rnd.randint(0, 7) for _ in team_data]
