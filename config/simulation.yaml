@@ -1,5 +1,5 @@
 max_step: 10000
-seed: 31
+seed: 42
 
 agents:
   - name: playerA1

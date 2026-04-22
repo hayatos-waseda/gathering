@@ -5,13 +5,16 @@ class CommanderA:
     def __init__(self, rnd, field_view):
         self.field = field_view
         self.rnd = rnd
+        #自由に変数やメソッドを定義してよい。
+        #例1) エージェントの過去の行動を保持しておく変数
+        #例2) 最も近くの★までの距離を計算するメソッド
 
     def decide(self, team_data, enemy_data):
         """
         引数:
-            team_data  : 味方エージェントの情報リスト
+            team_data  : 自チームのエージェントの情報リスト
                          [{"pos": [x, y], "status": "active"}, ...]
-            enemy_data : 敵エージェントの情報リスト
+            enemy_data : 敵チームのエージェントの情報リスト
                          [{"pos": [x, y], "status": "active"}, ...]
 
         返り値:

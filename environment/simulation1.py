@@ -6,8 +6,11 @@ from environment.field_view import FieldView
 from renderer.gif_maker import GIFMaker
 from agent.agent_a import AgentA
 from agent.agent_b import AgentB
+
+#自由にCommanderを作ってimportしてもよい
 from agent.commander_a import CommanderA
 from agent.commander_b import CommanderB
+
 
 import yaml
 import random
@@ -163,7 +166,7 @@ class Simulation:
                     a["score"] += field.acquire_event(pos[0], pos[1])
 
             # ===== 描画 =====
-            if render_mode == "gif" and time == 83:
+            if render_mode == "gif" and time <= 100:
                 gif.update(
                     step=time,
                     scores=[a["score"] for a in agents],
