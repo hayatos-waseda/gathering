@@ -4,7 +4,8 @@ from environment.map_loader import MapLoader
 from environment.field1 import Field1 as Field
 from environment.field_view import FieldView
 from renderer.gif_maker import GIFMaker
-
+from agent.agent_a import AgentA
+from agent.agent_b import AgentB
 from agent.commander_a import CommanderA
 from agent.commander_b import CommanderB
 
@@ -15,10 +16,8 @@ import random
 class Simulation:
 
     @staticmethod
-    def start(config_path, agent_a, agent_b):
+    def start(config_path):
         config_path="config/simulation.yaml"
-        AgentA = agent_a
-        AgentB = agent_b
 
         # ===== config読み込み =====
         with open(config_path, "r") as f:
@@ -164,7 +163,7 @@ class Simulation:
                     a["score"] += field.acquire_event(pos[0], pos[1])
 
             # ===== 描画 =====
-            if render_mode == "gif" and time <= 100:
+            if render_mode == "gif" and time == 83:
                 gif.update(
                     step=time,
                     scores=[a["score"] for a in agents],
