@@ -59,8 +59,7 @@ class Simulation:
                 "broken_count": 0
             })
 
-
-        # ===== Commander生成=====
+        # ===== Commander生成 =====
         commanders = {
             "A": CommanderA(rnd, field_view),
             "B": CommanderB(rnd, field_view),
@@ -69,7 +68,6 @@ class Simulation:
         for i, a in enumerate(agents):
             team_indices.setdefault(a["team"], []).append(i)
 
-        
         # ===== renderer =====
         render_mode = config["render"]["mode"]
 
@@ -84,31 +82,25 @@ class Simulation:
 
             prev_positions = [a["obj"].get_pos()[:] for a in agents]
 
-            # ===== 行動可能かどうか =====
             can_act_flags = [
                 agents[i]["obj"].can_act(time, rnd)
                 for i in range(len(agents))
             ]
 
             # ===== 行動決定 =====
-            actions = [8] * len(agents)  # デフォルトは「何もしない」
- 
+            actions = [8] * len(agents)  # デフォルトは停止
+
             for team, indices in team_indices.items():
                 commander = commanders[team]
- 
-                active_indices = [i for i in indices if can_act_flags[i]]
- 
-                if not active_indices:
-                    continue
- 
+
                 team_data = [
                     {
                         "pos": agents[i]["obj"].get_pos(),
                         "status": agents[i]["obj"].get_status(),
                     }
-                    for i in active_indices
+                    for i in indices
                 ]
- 
+
                 enemy_data = [
                     {
                         "pos": agents[j]["obj"].get_pos(),
@@ -117,12 +109,13 @@ class Simulation:
                     for j in range(len(agents))
                     if agents[j]["team"] != team
                 ]
- 
+
                 decided = commander.decide(team_data, enemy_data)
- 
-                for k, i in enumerate(active_indices):
-                    actions[i] = decided[k] if k < len(decided) else 8
-            
+
+                for k, i in enumerate(indices):
+                    if can_act_flags[i]:
+                        actions[i] = decided[k] if k < len(decided) else 8
+
             # ===== 移動 =====
             for i, a in enumerate(agents):
                 if actions[i] < 4 and a["obj"].get_status() != "broken":
@@ -149,10 +142,9 @@ class Simulation:
                 if hit_flags[j]:
                     current_pos = b["obj"].get_pos()[:]
                     broken = b["obj"].broken(time)
-                    if broken :
+                    if broken:
                         b["broken_count"] += 1
                         broken_positions[j] = current_pos
-
 
             # ===== 位置取得 =====
             positions = [a["obj"].get_pos() for a in agents]
@@ -161,11 +153,9 @@ class Simulation:
             for i, a in enumerate(agents):
                 pos = positions[i]
 
-                # 無効位置
                 if a["obj"].get_status() == "broken":
                     continue
 
-                # 同マス判定
                 same_cell = positions.count(pos) > 1
 
                 if same_cell:
@@ -180,8 +170,8 @@ class Simulation:
                     scores=[a["score"] for a in agents],
                     event=field.event,
                     teams=[a["team"] for a in agents],
-                    attack_ranges =[a["obj"].attack_range for a in agents],
-                    prev_positions= prev_positions,
+                    attack_ranges=[a["obj"].attack_range for a in agents],
+                    prev_positions=prev_positions,
                     positions=positions,
                     statuses=[a["obj"].get_status() for a in agents],
                     actions=actions,

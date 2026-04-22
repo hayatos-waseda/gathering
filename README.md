@@ -3,7 +3,7 @@
 ## 概要
 
 7×7のグリッドマップ上で、エージェントを動かして報酬（★）を集め、スコアを競うゲームです。
-あなたが実装するのは `agent/action_a.py` の `act()` メソッドだけです。
+あなたが実装するのは `agent/commander_a.py` の `decide()` メソッドだけです。
 
 ---
 
@@ -54,7 +54,7 @@ python3 main.py
 
 ### 行動
 
-毎ステップ、各エージェントは0〜8の整数を返します。
+毎ステップ、各エージェントは0〜8の整数で行動します。
 
 | action | 内容 |
 |--------|------|
@@ -91,35 +91,37 @@ python3 main.py
 
 ## あなたが実装するファイル
 
-`agent/action_a.py` の `act()` メソッドを実装してください。
+`agent/commander_a.py` の `decide()` メソッドを実装してください。
+
+指揮官はチームに1つ存在し、毎ステップ**チーム全員分の行動をまとめて決定**します。
 
 ```python
-# agent/action_a.py
+# agent/commander_a.py
 
-class ActionA:
+class CommanderA:
     def __init__(self, rnd, field_view):
         self.field = field_view
         self.rnd = rnd
 
-    def act(self, pos, a_data, e_data):
+    def decide(self, team_data, enemy_data):
         # ここを実装する
-        return 
+        # 返り値: team_data と同じ順序・同じ長さの行動リスト
+        # 例) [1, 3] -> team_data[0] は右移動、team_data[1] は左移動
+        return [self.rnd.randint(0, 7) for _ in team_data]
 ```
-実装したら、agent_aにインポートするファイルを変更してください。
 
 ### 引数
 
 | 引数 | 型 | 内容 |
 |------|----|------|
-| `pos` | `[x, y]` | 自分の現在座標 |
-| `a_data` | `list` | 味方エージェントの情報リスト |
-| `e_data` | `list` | 敵エージェントの情報リスト |
+| `team_data` | `list` | 味方エージェントの情報リスト|
+| `enemy_data` | `list` | 敵エージェントの情報リスト |
 
-`a_data` と `e_data` は以下の形式の辞書のリストです。
+`team_data` と `enemy_data` は以下の形式の辞書のリストです。
 
 ```python
 [
-    {"pos": [x, y], "status": "active"},  # active 、broken　または　invincible
+    {"pos": [x, y], "status": "active"},  # active、broken、または invincible
     ...
 ]
 ```
@@ -128,7 +130,7 @@ class ActionA:
 
 ### 返り値
 
-0〜8の整数を返してください。
+`team_data` と同じ順序・同じ長さの整数リスト（各要素は0〜8）を返してください。
 
 ---
 
