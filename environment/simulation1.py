@@ -20,7 +20,6 @@ class Simulation:
 
     @staticmethod
     def start(config_path):
-        config_path="config/simulation.yaml"
 
         # ===== config読み込み =====
         with open(config_path, "r") as f:
@@ -195,3 +194,20 @@ class Simulation:
             print(f'  {"Score:":<15} {a["score"]:>5}')
             print(f'  {"Attack Success:":<15} {a["attack_count"]:>5}')
             print(f'  {"Broken:":<15} {a["broken_count"]:>5}')
+
+        # ===== チーム集計 =====
+        print("=== TEAM SCORE ===")
+        team_totals = {}
+        for a in agents:
+            t = a["team"]
+            if t not in team_totals:
+                team_totals[t] = {"score": 0, "attack_count": 0, "broken_count": 0}
+            team_totals[t]["score"]        += a["score"]
+            team_totals[t]["attack_count"] += a["attack_count"]
+            team_totals[t]["broken_count"] += a["broken_count"]
+
+        for team, totals in sorted(team_totals.items()):
+            print(f'  Team {team}:')
+            print(f'    {"Score:":<15} {totals["score"]:>5}')
+            print(f'    {"Attack Success:":<15} {totals["attack_count"]:>5}')
+            print(f'    {"Broken:":<15} {totals["broken_count"]:>5}')
